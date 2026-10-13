@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liran Shaul</title>
+<meta name="description" content="Liran Shaul, Associate Professor of Mathematics at the University of Haifa. Commutative and homological algebra, DG-rings, finitistic dimensions, formalization in Lean 4.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: sticky identity column on the left, one reading column on the right; stacks to a single column on phones. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #141b26;
+  --muted: #586274;
+  --rule: #dbe0e8;
+  --accent: #1d4e89;
+  --accent-soft: #e4ecf7;
+  --display: "STIX Two Text", "Latin Modern Roman", "Times New Roman", serif;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141b; --surface: #161d27; --ink: #e2e7ef; --muted: #9aa5b6;
+    --rule: #263142; --accent: #92b8ec; --accent-soft: #1c2a3e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141b; --surface: #161d27; --ink: #e2e7ef; --muted: #9aa5b6;
+  --rule: #263142; --accent: #92b8ec; --accent-soft: #1c2a3e; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+.wrap {
+  max-width: 1140px; margin: 0 auto;
+  padding-inline: 28px; padding-block: 0;
+  display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 72px;
+}
+
+/* Identity column */
+aside {
+  position: sticky; top: env(safe-area-inset-top, 0px); align-self: start;
+  padding-block: 64px 32px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.photo {
+  display: block; width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+  margin-bottom: 20px; border: 1px solid var(--rule); background: #fff;
+}
+.name {
+  font-family: var(--display); font-weight: 500;
+  font-size: 2.35rem; line-height: 1.1; margin: 0; letter-spacing: -0.005em;
+}
+.role { margin: 10px 0 0; color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+.role strong { color: var(--ink); font-weight: 500; }
+
+.contact { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+.label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--muted);
+}
+.email { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.email code { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); user-select: all; }
+.copy {
+  font: 500 0.72rem var(--sans); color: var(--accent); background: transparent;
+  border: 1px solid var(--rule); border-radius: 4px; padding: 2px 8px; cursor: pointer;
+}
+.copy:hover { border-color: var(--accent); }
+
+.links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.9rem; }
+
+nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+nav a {
+  display: block; padding: 4px 0 4px 12px; border-left: 2px solid var(--rule);
+  color: var(--muted); text-decoration: none; font-size: 0.92rem;
+}
+nav a:hover { color: var(--ink); }
+nav a[aria-current="true"] { color: var(--ink); border-left-color: var(--accent); }
+
+/* Reading column */
+main { padding-block: 64px 96px; min-width: 0; max-width: 47rem; }
+section { scroll-margin-top: 24px; }
+section + section { margin-top: 72px; }
+h2 {
+  font-family: var(--display); font-weight: 500; font-size: 1.7rem; line-height: 1.2;
+  margin: 0 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--rule);
+  text-wrap: balance;
+}
+main strong { font-weight: 600; }
+h3 {
+  font-family: var(--sans); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); margin: 36px 0 4px;
+}
+p { margin: 0 0 14px; }
+
+/* Publications */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.filters button {
+  font: 500 0.82rem var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer;
+  display: inline-flex; gap: 6px; align-items: baseline;
+}
+.filters button span { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.filters button:hover { border-color: var(--accent); }
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.filters button[aria-pressed="true"] span { color: var(--bg); opacity: 0.8; }
+.count { font-size: 0.85rem; color: var(--muted); margin: 0 0 4px; }
+
+.pubs { list-style: none; margin: 0; padding: 0; }
+.pub {
+  display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); gap: 0 14px;
+  padding-block: 12px; border-top: 1px solid var(--rule);
+}
+.pub:first-child { border-top: 0; }
+.yr { font-family: var(--mono); font-size: 0.82rem; color: var(--muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+.pt { font-family: var(--display); font-size: 1.08rem; line-height: 1.35; font-weight: 500; }
+a.pt { color: var(--ink); text-decoration-color: var(--rule); }
+a.pt:hover { color: var(--accent); text-decoration-color: currentColor; }
+.au, .ve { font-size: 0.9rem; color: var(--muted); }
+.ve i { color: var(--ink); }
+.ve .id { font-family: var(--mono); font-size: 0.78rem; }
+.extra { font-size: 0.85rem; margin-left: 8px; }
+.status {
+  display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 0 6px; margin-left: 4px;
+}
+.empty { color: var(--muted); font-size: 0.9rem; padding-block: 8px; }
+
+/* Generic timeline rows */
+.rows { list-style: none; margin: 0; padding: 0; }
+.rows li {
+  display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0 16px;
+  padding-block: 10px; border-top: 1px solid var(--rule);
+}
+.rows li:first-child { border-top: 0; }
+.when { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); padding-top: 3px; font-variant-numeric: tabular-nums; }
+.what strong { font-weight: 500; }
+.what .sub { display: block; font-size: 0.9rem; color: var(--muted); }
+.what em { font-family: var(--display); font-style: italic; font-size: 1.02rem; }
+
+details { margin-top: 14px; }
+summary { cursor: pointer; color: var(--accent); font-size: 0.92rem; }
+details ol { margin: 10px 0 0; padding-left: 1.4rem; font-size: 0.92rem; }
+details ol li { margin-bottom: 6px; }
+
+.courses { margin: 0; padding-left: 1.1rem; }
+.courses li { margin-bottom: 4px; }
+.courses .lvl { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); margin-left: 6px; }
+
+footer { margin-top: 80px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 0.82rem; color: var(--muted); }
+
+@media (max-width: 880px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; padding-inline: 18px; }
+  aside { position: static; padding-block: 36px 24px; gap: 20px; border-bottom: 1px solid var(--rule); }
+  .name { font-size: 2rem; }
+  .photo { width: 112px; height: 112px; margin-bottom: 16px; }
+  nav ul { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  nav a { border: 1px solid var(--rule); border-radius: 999px; padding: 3px 11px; font-size: 0.85rem; }
+  nav a[aria-current="true"] { border-color: var(--rule); }
+  main { padding-block: 36px 64px; }
+  section + section { margin-top: 56px; }
+  .rows li { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <aside>
+    <div>
+      <img class="photo" src="photo.jpg" width="480" height="480" alt="Liran Shaul">
+      <h1 class="name">Liran Shaul</h1>
+      <p class="role"><strong>Associate Professor</strong><br>Department of Mathematics<br><a href="https://www.haifa.ac.il/">University of Haifa</a></p>
+    </div>
+
+    <div class="contact">
+      <span class="label">Email</span>
+      <div class="email">
+        <code id="email-text">shaul at math.haifa.ac.il</code>
+        <button class="copy" id="copy-email" type="button">Copy</button>
+      </div>
+    </div>
+
+    <div class="contact">
+      <span class="label">Elsewhere</span>
+      <ul class="links">
+        <li><a href="https://arxiv.org/a/shaul_l_1">arXiv</a></li>
+        <li><a href="https://scholar.google.com/citations?user=EZQjf98AAAAJ">Google Scholar</a></li>
+        <li><a href="https://orcid.org/0000-0003-0271-9273">ORCID</a></li>
+        <li><a href="https://github.com/LiranShaul">GitHub</a></li>
+      </ul>
+    </div>
+
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#students">Students</a></li>
+        <li><a href="#teaching">Teaching</a></li>
+        <li><a href="#talks">Talks</a></li>
+        <li><a href="#grants">Grants &amp; events</a></li>
+        <li><a href="#career">Career</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main>
+    <section id="about" aria-labelledby="h-about">
+      <h2 id="h-about">About</h2>
+      <p>I am an associate professor in the Department of Mathematics at the University of Haifa. From 2018 to 2026 I was in the Department of Algebra at Charles University in Prague. Before that I was a postdoc at Ben-Gurion University, Bielefeld, Antwerp and the Weizmann Institute. I received my PhD from Ben-Gurion University in 2013 under the supervision of Amnon Yekutieli.</p>
+      <p><strong>Research interests:</strong> commutative algebra, homological algebra, derived categories, commutative and noncommutative DG-rings, finitistic dimensions, and formalization of mathematics in Lean&nbsp;4.</p>
+    </section>
+
+    <section id="publications" aria-labelledby="h-pubs">
+      <h2 id="h-pubs">Publications</h2>
+      <div class="filters" role="group" aria-label="Filter by topic">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true">All <span></span></button>
+        <button type="button" id="f-cm" data-f="cm" aria-pressed="false">DG-rings &amp; Cohen–Macaulay <span></span></button>
+        <button type="button" id="f-fd" data-f="fd" aria-pressed="false">Finitistic dimensions <span></span></button>
+        <button type="button" id="f-dual" data-f="dual" aria-pressed="false">Duality &amp; Hochschild <span></span></button>
+        <button type="button" id="f-tri" data-f="tri" aria-pressed="false">Triangulated categories <span></span></button>
+        <button type="button" id="f-lean" data-f="lean" aria-pressed="false">Formalization <span></span></button>
+        <button type="button" id="f-sys" data-f="sys" aria-pressed="false">Systems theory <span></span></button>
+      </div>
+      <p class="count" id="pub-count" aria-live="polite"></p>
+
+      <div class="group">
+        <h3>Preprints</h3>
+        <ol class="pubs">
+          <li class="pub" data-t="tri"><span class="yr">2026</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2610.05884">K-injective complexes in commutative algebra</a>
+            <div class="ve">Submitted · <span class="id">arXiv:2610.05884</span></div></div></li>
+          <li class="pub" data-t="lean"><span class="yr">2026</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2603.04376">Formalization in Lean of faithfully flat descent of projectivity</a>
+            <div class="ve">Submitted · <span class="id">arXiv:2603.04376</span><a class="extra" href="https://github.com/LiranShaul/lean-faithfully-flat-descent">Lean code</a></div></div></li>
+          <li class="pub" data-t="tri"><span class="yr">2025</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2505.14353">Openness with respect to levels in triangulated categories</a>
+            <div class="au">with Souvik Dey and Jian Liu</div>
+            <div class="ve">Submitted · <span class="id">arXiv:2505.14353</span></div></div></li>
+          <li class="pub" data-t="fd"><span class="yr">2023</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2310.05247">Gorenstein acyclic complexes and finitistic dimensions</a>
+            <div class="ve">Submitted · <span class="id">arXiv:2310.05247</span></div></div></li>
+          <li class="pub" data-t="fd"><span class="yr">2023</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2303.08756">Acyclic complexes of injectives and finitistic dimensions</a>
+            <div class="au">with an appendix by Tsutomu Nakamura and Peder Thompson</div>
+            <div class="ve">Submitted · <span class="id">arXiv:2303.08756</span></div></div></li>
+        </ol>
+      </div>
+
+      <div class="group">
+        <h3>Journal articles</h3>
+        <ol class="pubs">
+          <li class="pub" data-t="fd cm"><span class="yr">2026</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2209.02068">The finitistic dimension conjecture via DG-rings</a>
+            <div class="ve"><i>J. reine angew. Math. (Crelle)</i>, to appear <span class="status">Accepted</span> · <span class="id">arXiv:2209.02068</span></div></div></li>
+          <li class="pub" data-t="fd cm"><span class="yr">2025</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2204.06865">Finitistic dimensions over commutative DG-rings</a>
+            <div class="au">with Isaac Bird, Prashanth Sridhar and Jordan Williamson</div>
+            <div class="ve"><i>Math. Z.</i> 309 (2025), no. 1, Paper No. 3 · <span class="id">arXiv:2204.06865</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2024</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2210.07348">Categorical properties of reduction functors over non-positive DG-rings</a>
+            <div class="ve"><i>Proc. Amer. Math. Soc.</i> 152 (2024), 489–500 · <span class="id">arXiv:2210.07348</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2024</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2106.08109">Sequence-regular commutative DG-rings</a>
+            <div class="ve"><i>J. Algebra</i> 647 (2024), 400–435 · <span class="id">arXiv:2106.08109</span></div></div></li>
+          <li class="pub" data-t="tri"><span class="yr">2024</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2012.05190">Lifting (co)stratifications between tensor triangulated categories</a>
+            <div class="au">with Jordan Williamson</div>
+            <div class="ve"><i>Israel J. Math.</i> 261 (2024), 249–280 · <span class="id">arXiv:2012.05190</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2022</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2002.05055">Open loci results for commutative DG-rings</a>
+            <div class="ve"><i>J. Pure Appl. Algebra</i> 226 (2022), no. 5, Paper No. 106922 · <span class="id">arXiv:2002.05055</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2021</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2005.10764">Koszul complexes over Cohen–Macaulay rings</a>
+            <div class="ve"><i>Adv. Math.</i> 386 (2021), Paper No. 107806 · <span class="id">arXiv:2005.10764</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2021</span><div>
+            <a class="pt" href="https://arxiv.org/abs/2009.01097">Smooth flat maps over commutative DG-rings</a>
+            <div class="ve"><i>Math. Z.</i> 299 (2021), 1673–1688 · <span class="id">arXiv:2009.01097</span></div></div></li>
+          <li class="pub" data-t="sys"><span class="yr">2021</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1712.07550">Pole placement for overdetermined 2D systems</a>
+            <div class="au">with Victor Vinnikov</div>
+            <div class="ve"><i>Linear Algebra Appl.</i> 610 (2021), 529–559 · <span class="id">arXiv:1712.07550</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2020</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1902.06771">The Cohen–Macaulay property in derived commutative algebra</a>
+            <div class="ve"><i>Trans. Amer. Math. Soc.</i> 373 (2020), no. 9, 6095–6138 · <span class="id">arXiv:1902.06771</span></div></div></li>
+          <li class="pub" data-t="dual cm"><span class="yr">2019</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1605.07447">Completion and torsion over commutative DG rings</a>
+            <div class="ve"><i>Israel J. Math.</i> 232 (2019), no. 2, 531–588 · <span class="id">arXiv:1605.07447</span></div></div></li>
+          <li class="pub" data-t="cm"><span class="yr">2018</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1709.01479">Injective DG-modules over non-positive DG-rings</a>
+            <div class="ve"><i>J. Algebra</i> 515 (2018), 102–156 · <span class="id">arXiv:1709.01479</span></div></div></li>
+          <li class="pub" data-t="dual cm"><span class="yr">2018</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1702.01107">Homological dimensions of local (co)homology over commutative DG-rings</a>
+            <div class="ve"><i>Canad. Math. Bull.</i> 61 (2018), no. 4, 865–877 · <span class="id">arXiv:1702.01107</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2018</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1412.3759">Tensor product of dualizing complexes over a field</a>
+            <div class="ve"><i>J. Commut. Algebra</i> 10 (2018), no. 2, 243–263 · <span class="id">arXiv:1412.3759</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2017</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1602.03874">Adic reduction to the diagonal and a relation between cofiniteness and derived completion</a>
+            <div class="ve"><i>Proc. Amer. Math. Soc.</i> 145 (2017), no. 12, 5131–5143 · <span class="id">arXiv:1602.03874</span></div></div></li>
+          <li class="pub" data-t="dual cm"><span class="yr">2017</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1510.05583">The twisted inverse image pseudofunctor over commutative DG rings and perfect base change</a>
+            <div class="ve"><i>Adv. Math.</i> 320 (2017), 279–328 · <span class="id">arXiv:1510.05583</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2016</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1505.04172">Hochschild cohomology commutes with adic completion</a>
+            <div class="ve"><i>Algebra Number Theory</i> 10 (2016), no. 5, 1001–1029 · <span class="id">arXiv:1505.04172</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2016</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1401.6678">Relations between derived Hochschild functors via twisting</a>
+            <div class="ve"><i>Comm. Algebra</i> 44 (2016), no. 7, 2898–2907 · <span class="id">arXiv:1401.6678</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2015</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1404.6105">Reduction of Hochschild cohomology over algebras finite over their center</a>
+            <div class="ve"><i>J. Pure Appl. Algebra</i> 219 (2015), no. 10, 4368–4377 · <span class="id">arXiv:1404.6105</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2015</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1208.4064">Cohomologically cofinite complexes</a>
+            <div class="au">with Marco Porta and Amnon Yekutieli</div>
+            <div class="ve"><i>Comm. Algebra</i> 43 (2015), no. 2, 597–615 · <span class="id">arXiv:1208.4064</span></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2014</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1010.4386">On the homology of completion and torsion</a>
+            <div class="au">with Marco Porta and Amnon Yekutieli</div>
+            <div class="ve"><i>Algebr. Represent. Theory</i> 17 (2014), no. 1, 31–67 · <span class="id">arXiv:1010.4386</span><a class="extra" href="https://arxiv.org/abs/1506.07765">Erratum</a></div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2014</span><div>
+            <a class="pt" href="https://arxiv.org/abs/1207.0612">Completion by derived double centralizer</a>
+            <div class="au">with Marco Porta and Amnon Yekutieli</div>
+            <div class="ve"><i>Algebr. Represent. Theory</i> 17 (2014), no. 2, 481–494 · <span class="id">arXiv:1207.0612</span></div></div></li>
+        </ol>
+      </div>
+
+      <div class="group">
+        <h3>Proceedings and extended abstracts</h3>
+        <ol class="pubs">
+          <li class="pub" data-t="dual cm"><span class="yr">2016</span><div>
+            <a class="pt" href="https://ems.press/content/serial-article-files/46613">Towards coherent duality over derived formal schemes</a>
+            <div class="ve"><i>Oberwolfach Reports</i>, Hochschild Cohomology in Algebra, Geometry, and Topology (2016)</div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2016</span><div>
+            <a class="pt" href="https://link.springer.com/chapter/10.1007/978-3-319-45441-2_25">Tensor product of dualizing complexes over a field</a>
+            <div class="ve"><i>Extended Abstracts Spring 2015</i>, Trends in Mathematics 5, Birkhäuser</div></div></li>
+          <li class="pub" data-t="sys"><span class="yr">2009</span><div>
+            <a class="pt" href="https://ieeexplore.ieee.org/document/5191853">State feedback for overdetermined 2D systems: pole placement for bundle maps over an algebraic curve</a>
+            <div class="au">with Victor Vinnikov</div>
+            <div class="ve"><i>International Workshop on Multidimensional (nD) Systems</i>, IEEE</div></div></li>
+        </ol>
+      </div>
+
+      <div class="group">
+        <h3>Theses</h3>
+        <ol class="pubs">
+          <li class="pub" data-t="cm"><span class="yr">2025</span><div>
+            <a class="pt" href="https://chres.is.cuni.cz/media/documents/2024/05/07/13_-_Habilitation_-_abbreviated_version.pdf">Differential graded rings and their applications</a>
+            <div class="ve">Habilitation thesis, Charles University</div></div></li>
+          <li class="pub" data-t="dual"><span class="yr">2013</span><div>
+            <span class="pt">Rigid dualizing complexes over commutative adic rings</span>
+            <div class="ve">PhD thesis, Ben-Gurion University of the Negev. Advisor: Amnon Yekutieli</div></div></li>
+        </ol>
+      </div>
+      <p class="empty" id="pub-empty" hidden>No papers in this topic.</p>
+    </section>
+
+    <section id="students" aria-labelledby="h-students">
+      <h2 id="h-students">Students and postdocs</h2>
+      <h3>PhD</h3>
+      <ul class="rows">
+        <li><span class="when">2025–</span><span class="what"><strong>Jindřich Novák</strong></span></li>
+      </ul>
+      <h3>Master's</h3>
+      <ul class="rows">
+        <li><span class="when">2026–</span><span class="what"><strong>Emil Čuřín</strong></span></li>
+        <li><span class="when">2026–</span><span class="what"><strong>George Stebunov</strong></span></li>
+        <li><span class="when">2025–</span><span class="what"><strong>Alžběta Kocmanová</strong></span></li>
+        <li><span class="when">2025</span><span class="what"><strong>Jindřich Novák</strong><span class="sub">Acyclic bounded-below cochain complexes of projectives. Best master's thesis in algebra, topology and geometry in the Czech Republic and Slovakia.</span></span></li>
+        <li><span class="when">2022</span><span class="what"><strong>Enrico Sabatini</strong><span class="sub">On finiteness properties of local cohomology modules. Joint with Jorge Vitória. PhD, University of Padova, 2025.</span></span></li>
+      </ul>
+      <h3>Bachelor's</h3>
+      <ul class="rows">
+        <li><span class="when">2024</span><span class="what"><strong>Emil Čuřín</strong></span></li>
+        <li><span class="when">2023</span><span class="what"><strong>Edward Young</strong></span></li>
+      </ul>
+      <h3>Postdocs</h3>
+      <ul class="rows">
+        <li><span class="when">2022–2023</span><span class="what"><strong><a href="https://sites.google.com/view/prashanthsridhar/home">Prashanth Sridhar</a></strong><span class="sub">Now assistant professor, University of Alabama</span></span></li>
+        <li><span class="when">2020–2022</span><span class="what"><strong><a href="https://sites.google.com/view/isaacbird">Isaac Bird</a></strong></span></li>
+        <li><span class="when">2020–2022</span><span class="what"><strong><a href="https://sites.google.com/view/jordanwilliamson/">Jordan Williamson</a></strong></span></li>
+      </ul>
+    </section>
+
+    <section id="teaching" aria-labelledby="h-teaching">
+      <h2 id="h-teaching">Teaching</h2>
+      <h3>Winter 2026/27, University of Haifa</h3>
+      <p>Abstract algebra: introduction to groups, rings and fields.</p>
+      <h3>Charles University, 2019–2026</h3>
+      <ul class="courses">
+        <li>Algebraic geometry <span class="lvl">MSc</span></li>
+        <li>Commutative algebra <span class="lvl">MSc</span></li>
+        <li>Categories of modules and homological algebra <span class="lvl">MSc</span></li>
+        <li>Derived categories and their applications in commutative algebra <span class="lvl">PhD</span></li>
+        <li>Abstract algebra I and II <span class="lvl">BSc</span></li>
+      </ul>
+      <h3>Ben-Gurion University, 2018</h3>
+      <ul class="courses">
+        <li>Linear algebra I <span class="lvl">BSc</span></li>
+        <li>Calculus II <span class="lvl">BSc</span></li>
+      </ul>
+    </section>
+
+    <section id="talks" aria-labelledby="h-talks">
+      <h2 id="h-talks">Selected talks</h2>
+      <ul class="rows">
+        <li><span class="when">Dec 2025</span><span class="what"><em>Openness of level loci in triangulated categories</em><span class="sub">Geometry and Topology Seminar, University of Haifa</span></span></li>
+        <li><span class="when">Aug 2024</span><span class="what"><em>Sequences of syzygies, singularity categories and homological conjectures</em><span class="sub">Technion – Haifa algebra seminar</span></span></li>
+        <li><span class="when">Jul 2024</span><span class="what"><em>Sequences of syzygies, singularity categories and homological conjectures</em><span class="sub">Algebraic Geometry and Number Theory Seminar, Ben-Gurion University</span></span></li>
+        <li><span class="when">Dec 2023</span><span class="what"><em>Acyclic complexes and finitistic dimensions</em><span class="sub">Algebra Seminar, Bar-Ilan University</span></span></li>
+        <li><span class="when">Jun 2023</span><span class="what"><em>Acyclic complexes and finitistic dimensions</em><span class="sub">Workshop on Finitistic Dimensions, Bielefeld</span></span></li>
+        <li><span class="when">Feb 2023</span><span class="what"><em>Finitistic dimension, generation of injectives, and dualizing complexes</em><span class="sub">New Directions in Group Theory and Triangulated Categories (online)</span></span></li>
+        <li><span class="when">Sep 2022</span><span class="what"><em>Finitistic dimensions via differential graded algebras</em><span class="sub">Silting Theory, Algebras and Representations, Prague</span></span></li>
+        <li><span class="when">Sep 2022</span><span class="what"><em>The finitistic dimension conjecture via DG-rings</em><span class="sub">Paris Algebra Seminar (online)</span></span></li>
+        <li><span class="when">Dec 2021</span><span class="what"><em>The Cohen–Macaulay property, its applications and generalizations</em><span class="sub">Colloquium, University of Haifa</span></span></li>
+        <li><span class="when">Feb 2016</span><span class="what"><em>Towards coherent duality over derived formal schemes</em><span class="sub">Hochschild Cohomology in Algebra, Geometry, and Topology, Oberwolfach</span></span></li>
+        <li><span class="when">Dec 2015</span><span class="what"><em>The twisted inverse image pseudofunctor over commutative DG-algebras via rigid dualizing DG-modules</em><span class="sub">Algebraic Geometry Conference, Indian Statistical Institute, Bangalore</span></span></li>
+      </ul>
+    </section>
+
+    <section id="grants" aria-labelledby="h-grants">
+      <h2 id="h-grants">Grants and events</h2>
+      <ul class="rows">
+        <li><span class="when">2020–2023</span><span class="what"><strong>Cohen–Macaulay rings and their applications in higher algebra and topology</strong><span class="sub">Czech Science Foundation (GAČR) project 20-02760Y, principal investigator. Funded postdocs Isaac Bird, Prashanth Sridhar and Jordan Williamson.</span></span></li>
+        <li><span class="when">Feb 2020</span><span class="what"><strong><a href="https://sites.google.com/view/amnon-yekutieli-conference/home">Derived Categories</a></strong>, Prague<span class="sub">Main organizer. Supported by the Compositio Foundation.</span></span></li>
+        <li><span class="when">2020–2021</span><span class="what"><strong>Commutative Algebra Seminar</strong>, Charles University<span class="sub">Organizer</span></span></li>
+      </ul>
+      <details>
+        <summary>Papers supported by the GAČR project</summary>
+        <ol>
+          <li>L. Shaul. <a href="https://arxiv.org/abs/2002.05055">Open loci results for commutative DG-rings</a>.</li>
+          <li>L. Shaul. <a href="https://arxiv.org/abs/2005.10764">Koszul complexes over Cohen–Macaulay rings</a>.</li>
+          <li>L. Shaul. <a href="https://arxiv.org/abs/2009.01097">Smooth flat maps over commutative DG-rings</a>.</li>
+          <li>L. Pol and J. Williamson. <a href="https://arxiv.org/abs/2011.06989">The homotopy theory of complete modules</a>.</li>
+          <li>S. Balchin, J.P.C. Greenlees, L. Pol and J. Williamson. <a href="https://arxiv.org/abs/2011.10413">Torsion models for tensor-triangulated categories: the one-step case</a>.</li>
+          <li>L. Shaul and J. Williamson. <a href="https://arxiv.org/abs/2012.05190">Lifting (co)stratifications between tensor triangulated categories</a>.</li>
+          <li>L. Shaul. <a href="https://arxiv.org/abs/2106.08109">Sequence-regular commutative DG-rings</a>.</li>
+          <li>L. Pol and J. Williamson. <a href="https://arxiv.org/abs/2106.08669">Local Gorenstein duality in chromatic group cohomology</a>.</li>
+          <li>I. Bird. <a href="https://arxiv.org/abs/2108.08135">Purity and ascent for Gorenstein flat cotorsion modules</a>.</li>
+          <li>J. Ishak, C. Roitzheim and J. Williamson. <a href="https://arxiv.org/abs/2110.03138">Levels of algebraicity in stable homotopy theories</a>.</li>
+          <li>I. Bird and J. Williamson. <a href="https://arxiv.org/abs/2202.08113">Duality pairs, phantom maps, and definability in triangulated categories</a>.</li>
+          <li>I. Bird, L. Shaul, P. Sridhar and J. Williamson. <a href="https://arxiv.org/abs/2204.06865">Finitistic dimensions over commutative DG-rings</a>.</li>
+          <li>L. Shaul. <a href="https://arxiv.org/abs/2210.07348">Categorical properties of reduction functors over non-positive DG-rings</a>.</li>
+          <li>S. Balchin, C. Roitzheim and J. Williamson. <a href="https://arxiv.org/abs/2302.12134">Tensor-triangular rigidity in chromatic homotopy theory</a>.</li>
+          <li>L. Shaul, with an appendix by T. Nakamura and P. Thompson. <a href="https://arxiv.org/abs/2303.08756">Acyclic complexes of injectives and finitistic dimensions</a>.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section id="career" aria-labelledby="h-career">
+      <h2 id="h-career">Career</h2>
+      <ul class="rows">
+        <li><span class="when">2026–</span><span class="what"><strong>Associate Professor</strong>, Department of Mathematics, University of Haifa</span></li>
+        <li><span class="when">2025–2026</span><span class="what"><strong>Associate Professor (tenured)</strong>, Department of Algebra, Charles University, Prague<span class="sub">Habilitation in mathematics, 2025</span></span></li>
+        <li><span class="when">2018–2025</span><span class="what"><strong>Assistant Professor</strong>, Department of Algebra, Charles University, Prague</span></li>
+        <li><span class="when">2017–2018</span><span class="what"><strong>Postdoc</strong>, Ben-Gurion University of the Negev<span class="sub">Host: Amnon Yekutieli</span></span></li>
+        <li><span class="when">2016–2017</span><span class="what"><strong>Postdoc</strong>, Bielefeld University<span class="sub">Host: Henning Krause. Minerva Fellowship.</span></span></li>
+        <li><span class="when">2014–2016</span><span class="what"><strong>Postdoc</strong>, University of Antwerp<span class="sub">Host: Wendy Lowen</span></span></li>
+        <li><span class="when">2013–2014</span><span class="what"><strong>Postdoc</strong>, Weizmann Institute of Science</span></li>
+        <li><span class="when">2013</span><span class="what"><strong>PhD in Mathematics</strong>, Ben-Gurion University of the Negev<span class="sub">Advisor: Amnon Yekutieli. Friedman Prize for the best PhD thesis in the department.</span></span></li>
+        <li><span class="when">2009</span><span class="what"><strong>MSc in Mathematics</strong>, summa cum laude, Ben-Gurion University of the Negev</span></li>
+        <li><span class="when">2004</span><span class="what"><strong>BA in Computer Science</strong>, cum laude, The Open University of Israel</span></li>
+      </ul>
+      <footer>Last updated October 2026.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  // Copy email
+  var btn = document.getElementById('copy-email');
+  var addr = 'shaul' + '@' + 'math.haifa.ac.il';
+  btn.addEventListener('click', function () {
+    function done(ok) {
+      btn.textContent = ok ? 'Copied' : 'Select and copy';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1800);
+    }
+    try {
+      navigator.clipboard.writeText(addr).then(function () { done(true); }, function () {
+        document.getElementById('email-text').textContent = addr; done(false);
+      });
+    } catch (e) { document.getElementById('email-text').textContent = addr; done(false); }
+  });
+
+  // Publication filter
+  var pubs = Array.prototype.slice.call(document.querySelectorAll('.pub'));
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.filters button'));
+  var groups = Array.prototype.slice.call(document.querySelectorAll('#publications .group'));
+  function has(p, f) { return f === 'all' || p.getAttribute('data-t').split(' ').indexOf(f) !== -1; }
+  buttons.forEach(function (b) {
+    var f = b.getAttribute('data-f');
+    b.querySelector('span').textContent = pubs.filter(function (p) { return has(p, f); }).length;
+    b.addEventListener('click', function () { apply(f); });
+  });
+  function apply(f) {
+    var shown = 0;
+    pubs.forEach(function (p) { var on = has(p, f); p.hidden = !on; if (on) shown++; });
+    groups.forEach(function (g) { g.hidden = !g.querySelector('.pub:not([hidden])'); });
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-f') === f)); });
+    document.getElementById('pub-empty').hidden = shown > 0;
+    document.getElementById('pub-count').textContent = f === 'all'
+      ? shown + ' items, newest first. Titles link to arXiv.'
+      : 'Showing ' + shown + ' of ' + pubs.length + '.';
+  }
+  apply('all');
+
+  // Highlight the current section in the nav
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav a'));
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (a) { a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + e.target.id)); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('main section').forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
